@@ -5,7 +5,7 @@ Recipe search technical test
 ## Installation
 
 `$ git clone http://hayzee/techtest` <br />
-`$ cd whatever` <br />
+`$ cd techtest` <br />
 `$ vim ./resources/config.edn` (directory of indexed recipe files) <br />
 `$ lein run`
 
