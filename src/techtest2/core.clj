@@ -4,9 +4,18 @@
             [techtest2.search :as search]))
 
 
-;; TODO: Global state - possibly use mount for this - and/or a database
+;; Global state. Could use mount for this, and/or a database.
 (def idx (atom {:file-index   nil
                 :term-idf-map nil}))
+
+
+(defn reindex
+  [idx]
+  (do
+    (print "Creating index ......... ")
+    (flush)
+    (indexer/store-index! idx (cfg/config :dir-path))
+    (println "done!")))
 
 
 (defn test-handler [str]
@@ -20,7 +29,7 @@
     (let [line (read-line)]
       (when (not (#{":exit" ":x" ":quit" ":q"} (.toLowerCase line)))
         (if (#{":reindex" ":r"} (.toLowerCase line))
-          (indexer/store-index! idx (cfg/config :dir-path))
+          (reindex idx)
           (handler line))
         (recur)))))
 
@@ -31,7 +40,7 @@
   (println "========================\n")
   (println "Enter :x to exit, or :r to reindex\n")
   (input-loop "Enter search term" handler)
-  (println "\n========================")
+  (println "========================\n")
   (println "Farewell from recipe search.")
   (println "Please visit us again soon."))
 
@@ -39,16 +48,17 @@
 (defn -main
   "Main erntry point for the search program."
   [& args]
-  (indexer/store-index! idx (cfg/config :dir-path))
-  (run-search-dialog test-handler))
+  (do
+    (reindex idx)
+    (run-search-dialog test-handler)))
 
 
 
 
+
+; demo
 
 (comment
-
-  ;demo
 
   (indexer/store-index! idx (cfg/config :dir-path))
 
@@ -63,6 +73,7 @@
   (count (:file-index @idx))
 
   (-main)
+
   )
 
 

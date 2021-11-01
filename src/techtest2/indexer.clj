@@ -26,7 +26,9 @@
   [file-name]
   (let [file-tokens (tokenise-string (slurp file-name))
         term-freqs (frequencies file-tokens)]
-    {:file file-name :token-count (count file-tokens) :term-freqs term-freqs}))
+    {:file file-name
+     :token-count (count file-tokens)
+     :term-freqs term-freqs}))
 
 
 (defn- get-filenames
@@ -39,22 +41,28 @@
 
 
 (defn- create-index [dir-path]
-  (let [file-index  (map tokenise-file (get-filenames dir-path))
-        term-idf-map (into {} (mapv #(vector (first %) (Math/log (/ (count file-index) (count (second %))))) (group-by first (mapcat :term-freqs file-index))))
-        ]
-    {:file-index file-index
+  (let [file-index (map tokenise-file (get-filenames dir-path))
+        term-idf-map (into {} (mapv #(vector (first %) (Math/log (/ (count file-index) (count (second %))))) (group-by first (mapcat :term-freqs file-index))))]
+    {:file-index   file-index
      :term-idf-map term-idf-map}))
 
 
 (defn store-index! [idx dir-path]
-  (do
-    (print "Creating index ......... ")
-    (flush)
-    (swap! idx merge (create-index dir-path))
-    (println "done!")))
+  (swap! idx merge (create-index dir-path)))
 
 
+(defn term-idf
+  [idx term]
+  (get (:term-idf-map idx) term))
 
 
+(term-idf @techtest2.core/idx "banana")
+(term-idf @techtest2.core/idx "sausage")
 
 
+(defn term-idfs
+  [idx terms]
+  (into {} (map #(vector % (term-idf idx %)) terms)))
+
+
+(term-idfs @techtest2.core/idx ["sausage" "banana" "custard" "notaword"])

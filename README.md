@@ -6,7 +6,7 @@ Recipe search technical test
 
 `$ git clone http://hayzee/techtest` <br />
 `$ cd techtest` <br />
-`$ vim ./resources/config.edn` (directory of indexed recipe files) <br />
+`$ vim ./resources/config.edn` (set the directory of the recipe files to be indexed) <br />
 `$ lein run`
 
 OK, so you don't have to use vim ;-)

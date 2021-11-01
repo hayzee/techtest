@@ -1,5 +1,6 @@
 (ns techtest2.search
-  (:require [techtest2.indexer :as indexer]))
+  (:require [techtest2.indexer :as indexer]
+             [clojure.set :as cset]))
 
 
 (defn term-freq
@@ -14,28 +15,56 @@
   (set (filter #(term-freq % term) (idx :file-index))))
 
 
+
 (defn find-terms
   "Return the set of index entries in `idx that contain each term in terms"
   [idx terms]
-  (apply clojure.set/intersection (map #(find-term idx %) terms)))
+  (apply cset/intersection (map #(find-term idx %) terms)))
+
 
 
 (defn retain-matched
   "Eliminate unmatched terms from an index-entry"
-  [index-entry terms]
+  [idx index-entry terms]
+  (let [term-freqs (select-keys (:term-freqs index-entry) terms)
+        term-idfs (indexer/term-idfs idx terms)
+        term-tfidfs (merge-with
+                      *
+                      term-freqs
+                      term-idfs)]
   (assoc
     index-entry
-    :term-freqs
-    (select-keys (:term-freqs index-entry) terms)))
+    :term-freqs term-freqs
+    :term-idfs term-idfs
+    :term-tfidfs term-tfidfs
+    :rank (reduce * (vals term-tfidfs)))))
+
 
 
 (defn perform-search
   [idx query-string]
   (let [terms (indexer/tokenise-string query-string)]
-    (map #(retain-matched % terms)
-         (find-terms idx terms))))
+    (->>
+      (find-terms idx terms)
+      (map #(retain-matched idx % terms))
+      (sort-by #(- (:rank %)))
+      )
+    ))
 
 
+(perform-search @techtest2.core/idx "onion sausage potato")
+(perform-search @techtest2.core/idx "wheat crunch booboo")
+
+
+
+
+(merge-with *
+  {"onion" 3, "sausage" 7, "potato" 1}
+  {"onion" 1.0087811716430142, "sausage" 3.49812241849888, "potato" 1.9866649144249835})
+
+
+
+(defn rank-search)
 
 
 
