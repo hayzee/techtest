@@ -1,56 +1,67 @@
 (ns techtest2.core
   (:require [techtest2.config :as cfg]
-            [techtest2.indexer :as indexer]
-            [techtest2.search :as search]))
-
-
-;; Global state. Could use mount for this, and/or a database.
-(def idx (atom {:file-index   nil
-                :term-idf-map nil}))
+            [techtest2.indexer :as idx]
+            [techtest2.search :as search]
+            [clojure.pprint :as pp]))
 
 
 (defn reindex
+  "Reindexing dialog."
   [idx]
   (do
     (print "Creating index ......... ")
     (flush)
-    (indexer/store-index! idx (cfg/config :dir-path))
+    (idx/store-index! idx (cfg/config :dir-path))
     (println "done!")))
 
 
-(defn test-handler [str]
-  (println "You entered " str))
+(defn search-handler
+  "Search handler calls the search/perform-search, than interprets (and displays) the result map."
+  [seach-string]
+  (time
+    (do
+      (println "\nSearching for " seach-string "\n")
+      (let [results (search/perform-search @idx/idx seach-string)]
+        (if (seq results)
+          (do
+            (pp/pprint results)
+            (println (count results) "results found"))
+          (println "No results found"))))))
 
 
-(defn input-loop [prompt handler]
+(defn test-handler
+  "Dummy handler for test purposes when working on the input-loop function"
+  [seach-string]
+  (println "You entered " seach-string))
+
+
+(defn input-loop [handler]
   (loop []
-    (print prompt ": ")
+    (print "\nEnter search term : ")
     (flush)
     (let [line (read-line)]
       (when (not (#{":exit" ":x" ":quit" ":q"} (.toLowerCase line)))
         (if (#{":reindex" ":r"} (.toLowerCase line))
-          (reindex idx)
+          (reindex idx/idx)
           (handler line))
         (recur)))))
 
 
 (defn run-search-dialog
   [handler]
-  (println "Welcome to recipe search")
-  (println "========================\n")
-  (println "Enter :x to exit, or :r to reindex\n")
-  (input-loop "Enter search term" handler)
-  (println "========================\n")
-  (println "Farewell from recipe search.")
-  (println "Please visit us again soon."))
+  (println "\nWelcome to recipe search")
+  (println "Enter :x to exit, or :r to reindex")
+  (input-loop handler)
+  (println "\n\nFarewell from recipe search.")
+  (println "\nPlease visit us again soon."))
 
 
 (defn -main
   "Main erntry point for the search program."
-  [& args]
+  [& _]
   (do
-    (reindex idx)
-    (run-search-dialog test-handler)))
+    (reindex idx/idx)
+    (run-search-dialog search-handler)))
 
 
 
@@ -60,20 +71,21 @@
 
 (comment
 
-  (indexer/store-index! idx (cfg/config :dir-path))
+  @idx/idx
 
-  (keys @idx)
+  (do (idx/store-index! idx/idx (cfg/config :dir-path)) nil)
 
-  (:term-idf-map @idx)
+  (keys @idx/idx)
 
-  (count (:term-idf-map @idx))
+  (:term-idf-map @idx/idx)
 
-  (take 5 (:file-index @idx))
+  (count (:term-idf-map @idx/idx))
 
-  (count (:file-index @idx))
+  (take 5 (:file-index @idx/idx))
+
+  (count (:file-index @idx/idx))
 
   (-main)
 
   )
-
 

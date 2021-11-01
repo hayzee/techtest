@@ -2,6 +2,11 @@
   (:require [clojure.string :as s]))
 
 
+;; todo: Global state. Could use mount for this, and/or a database.
+(def idx (atom {:file-index   nil
+                :term-idf-map nil}))
+
+
 (defn- remove-non-alphanum
   "Remove non-alphanumeric characters from the string `st"
   [st]
@@ -52,17 +57,12 @@
 
 
 (defn term-idf
+  "Return the idf value for the given 'term from the index"
   [idx term]
   (get (:term-idf-map idx) term))
 
 
-(term-idf @techtest2.core/idx "banana")
-(term-idf @techtest2.core/idx "sausage")
-
-
 (defn term-idfs
+  "Return the idfs value for the given 'terms from the index, returning a map of [term idf] pairs"
   [idx terms]
   (into {} (map #(vector % (term-idf idx %)) terms)))
-
-
-(term-idfs @techtest2.core/idx ["sausage" "banana" "custard" "notaword"])

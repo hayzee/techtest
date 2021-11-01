@@ -1,6 +1,7 @@
 (ns techtest2.config
   (:require [clojure.java.io :as io]
-            [clojure.edn :as edn]))
+            [clojure.edn :as edn])
+  (:import (java.io PushbackReader IOException)))
 
 
 (defn load-edn
@@ -8,13 +9,13 @@
   [source]
   (try
     (with-open [r (io/reader source)]
-      (edn/read (java.io.PushbackReader. r)))
-    (catch java.io.IOException e
+      (edn/read (PushbackReader. r)))
+    (catch IOException e
       (printf "Couldn't open '%s': %s\n" source (.getMessage e)))
     (catch RuntimeException e
       (printf "Error parsing edn file '%s': %s\n" source (.getMessage e)))))
 
 
 ;; TODO: Global state - possibly use mount for this
-(def config (load-edn ".\\resources\\config.edn"))
+(def config (load-edn "./resources/config.edn"))
 
