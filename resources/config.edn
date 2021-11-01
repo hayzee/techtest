@@ -1,3 +1,4 @@
 {
- :dir-path "X:/Clojure/riverford/recipes/"
+  :dir-path "X:/Clojure/riverford/recipes/"
+ ; :dir-path "resources/testfiles"
  }

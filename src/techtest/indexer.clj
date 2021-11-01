@@ -35,12 +35,12 @@
   (into {} (map vector (range) (get-filenames dir-path))))
 
 
-; TODO: Global state -
+; TOsDO: Global state -
 ; lookup filename from docid
 (def docid->filename (get-filenames-map (cfg/config :dir-path)))
 
 
-; TODO: Global state -
+; TODOz: Global state -
 ; lookup docid from filename (reverse of docid->filename)
 (def filename->docid (into {} (map (fn [[f s]] [s f]) docid->filename)))
 
@@ -64,7 +64,7 @@
           (clojure.string/lower-case tstr))))))
 
 
-; TODO: Refactor this - it's hard to read
+; TODOz: Refactor this - it's hard to read
 (defn- index-file
   "Create an inverted index for `file."
   [file]
@@ -101,8 +101,8 @@
 
 ;; search
 
-; TODO: Global state - lookup docid from filename - this could be the global state of the search interface
-; TODO: Maybe move everything below here to the search interface
+; TODOz: Global state - lookup docid from filename - this could be the global state of the search interface
+; TODOz: Maybe move everything below here to the search interface
 (def inverted-index (create-inverted-index (map first filename->docid)))
 
 (defn term-idf

@@ -14,7 +14,7 @@
     (catch RuntimeException e
       (printf "Error parsing edn file '%s': %s\n" source (.getMessage e)))))
 
-;; TODO: Top level state
+;; TODsO: Top level state
 (def config (load-edn ".\\resources\\config.edn"))
 
 ;(defn get-cfg [key]

@@ -10,16 +10,17 @@
 
 
 (defn find-term
-  "Return the set of index entries in `idx that contain `term"
+  "Return the set of index-entries in `idx that contain `term"
   [idx term]
   (set (filter #(term-freq % term) (idx :file-index))))
 
 
-;; todo fix the bug where terms are empty - e.g. search for "::"
 (defn find-terms
-  "Return the set of index entries in `idx that contain each term in terms"
+  "Return the set of index-entries in `idx that contain each term in terms"
   [idx terms]
-  (apply cset/intersection (map #(find-term idx %) terms)))
+  (if (seq terms)
+    (apply cset/intersection (map #(find-term idx %) terms))
+    #{}))
 
 
 (defn augment-search

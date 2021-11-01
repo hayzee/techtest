@@ -16,6 +16,6 @@
       (printf "Error parsing edn file '%s': %s\n" source (.getMessage e)))))
 
 
-;; TODO: Global state - possibly use mount for this
-(def config (load-edn "./resources/config.edn"))
+;; Note: Global state. Could use mount for this, but this is fine for now.
+(def config (load-edn "resources/config.edn"))
 

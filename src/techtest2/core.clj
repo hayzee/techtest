@@ -15,18 +15,38 @@
     (println "done!")))
 
 
-(defn search-handler
-  "Search handler calls the search/perform-search, than interprets (and displays) the result map."
+; todo fix timing
+(defn raw-search-handler
+  "Search handler: calls the search/perform-search and displays the raw result map."
   [seach-string]
-  (time
-    (do
-      (println "\nSearching for " seach-string "\n")
-      (let [results (search/perform-search @idx/idx seach-string)]
-        (if (seq results)
-          (do
-            (pp/pprint results)
-            (println (count results) "results found"))
-          (println "No results found"))))))
+  (println "\nSearching for " seach-string "\n")
+  (let [d1 (inst-ms (java.time.Instant/now))
+        results (search/perform-search @idx/idx seach-string)
+        d2 (inst-ms (java.time.Instant/now))
+        ms (- d2 d1)]
+    (if (seq results)
+      (do
+        (pp/pprint results)
+        (println (count results) "results found"))
+      (println "No results found"))
+    (println "Elapsed time:" ms "msecs")))
+
+
+; todo fix timing
+(defn search-handler
+  "Search handler: calls the search/perform-search and displays the results."
+  [seach-string]
+  (println "\nSearching for " seach-string "\n")
+  (let [d1 (inst-ms (java.time.Instant/now))
+        results (search/perform-search @idx/idx seach-string)
+        d2 (inst-ms (java.time.Instant/now))
+        ms (- d2 d1)]
+    (if (seq results)
+      (do
+        (pp/pprint (map :file results))
+        (println (count results) "results found"))
+      (println "No results found"))
+    (println "Elapsed time:" ms "msecs")))
 
 
 (defn test-handler
@@ -61,7 +81,7 @@
   [& _]
   (do
     (reindex idx/idx)
-    (run-search-dialog search-handler)))
+    (run-search-dialog raw-search-handler)))
 
 
 

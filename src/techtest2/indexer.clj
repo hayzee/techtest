@@ -2,7 +2,7 @@
   (:require [clojure.string :as s]))
 
 
-;; todo: Global state. Could use mount for this, and/or a database.
+;; Note: Global state. Could use mount for this, and/or a database, but this is fine for now.
 (def idx (atom {:file-index   nil
                 :term-idf-map nil}))
 
@@ -45,6 +45,7 @@
     (map #(.getAbsolutePath %))))
 
 
+;todo: refactor this
 (defn- create-index [dir-path]
   (let [file-index (map tokenise-file (get-filenames dir-path))
         term-idf-map (into {} (mapv #(vector (first %) (Math/log (/ (count file-index) (count (second %))))) (group-by first (mapcat :term-freqs file-index))))]
@@ -52,7 +53,9 @@
      :term-idf-map term-idf-map}))
 
 
-(defn store-index! [idx dir-path]
+(defn store-index!
+  "Set the idx atom with a call to create-index"
+  [idx dir-path]
   (swap! idx merge (create-index dir-path)))
 
 
